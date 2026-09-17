@@ -4,7 +4,7 @@ import java.net.Socket;
 import java.util.ArrayList;
 
 public class CentralKnudeServer {
-    private static ArrayList<Player> players = new ArrayList<>();
+    private static ArrayList<ClientHandler> players = new ArrayList<>();
 
     public static void main(String[] args) throws IOException {
         ServerSocket welcomeSocket = new ServerSocket(6789);
