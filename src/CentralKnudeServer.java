@@ -4,9 +4,9 @@ import java.net.Socket;
 import java.util.ArrayList;
 
 public class CentralKnudeServer {
-    private ArrayList<Player> players = new ArrayList<>();
+    private static ArrayList<Player> players = new ArrayList<>();
 
-    public void serverConnection() throws IOException {
+    public static void main(String[] args) throws IOException {
         ServerSocket welcomeSocket = new ServerSocket(6789);
         System.out.println("Serveren venter på spillere");
         while (true) {

@@ -19,15 +19,15 @@ public class ServerRecieveThread extends Thread {
         try {
             BufferedReader recieveReader = new BufferedReader(new InputStreamReader(connSocket.getInputStream()));
             DataOutputStream ekkoMessage = new DataOutputStream(connSocket.getOutputStream());
-            System.out.println("Modtaget navn: ");
             playerName = recieveReader.readLine();
+            System.out.println("Modtaget navn: " + playerName);
             Player player = new Player(playerName, players.size(), players.size(), "right");
             players.add(player);
 
             while (true) {
                 String recieveSentence = recieveReader.readLine();
                 System.out.println("Modtaget fra " + player + ": " + recieveSentence);
-                ekkoMessage.writeBytes("tilbage fra servern: " + recieveSentence + '\n');
+                ekkoMessage.writeBytes(recieveSentence + '\n');
             }
         } catch (Exception e) {
             throw new RuntimeException(e);

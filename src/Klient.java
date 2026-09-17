@@ -5,11 +5,10 @@ import java.io.InputStreamReader;
 import java.net.Socket;
 
 public class Klient {
-    String playerName;
+    static String playerName;
 
-
-    public void KlientConnection() throws IOException {
-        Socket clientSocket = new Socket("10.10.131.88", 6789);
+    public static void main(String[] args) throws IOException {
+        Socket clientSocket = new Socket("LocalHost", 6789);
 
         System.out.println("Indtast navn på spiller: ");
         DataOutputStream sendStream = new DataOutputStream(clientSocket.getOutputStream());

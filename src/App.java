@@ -9,11 +9,5 @@ public class App {
 	public static void main(String[] args) throws IOException {
 		
 			Application.launch(GUI.class);
-		Klient klient = new Klient();
-		CentralKnudeServer centralKnudeServer = new CentralKnudeServer();
-
-		klient.KlientConnection();
-		centralKnudeServer.serverConnection();
-
 	}
 }
