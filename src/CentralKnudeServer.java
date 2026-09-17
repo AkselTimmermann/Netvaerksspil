@@ -9,6 +9,7 @@ public class CentralKnudeServer {
     public static void main(String[] args) throws IOException {
         ServerSocket welcomeSocket = new ServerSocket(6789);
         System.out.println("Serveren venter på spillere");
+
         while (true) {
             Socket connectionSocket = welcomeSocket.accept();
             ServerRecieveThread serverRecieveThread = new ServerRecieveThread(connectionSocket, players);
