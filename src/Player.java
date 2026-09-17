@@ -1,3 +1,5 @@
+import java.io.IOException;
+import java.net.Socket;
 
 public class Player {
 	String name;
@@ -13,6 +15,7 @@ public class Player {
 		this.direction = direction;
 		this.point = 0;
 	}
+
 
 	public int getXpos() {
 		return xpos;
