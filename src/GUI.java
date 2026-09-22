@@ -130,11 +130,10 @@ public class GUI extends Application {
             dialog.setHeaderText("Indtast navn på spiller:");
             String playerName = dialog.showAndWait().orElse(null);
 
-            klient = new Klient("10.10.139.177",6789,me.name, this);
+            klient = new Klient("10.10.139.177",6789,playerName, this);
             for (Player p : players) {
                 fields[p.getXpos()][p.getYpos()].setGraphic(new ImageView(p.getDirection()));
             }
-            me = new Player(playerName,9,4,"up");
 
             scoreList.setText(getScoreList());
 
@@ -158,7 +157,7 @@ public class GUI extends Application {
 
 
     public void moveAndSend(int delta_x, int delta_y, String direction) {
-
+		/*
         int oldX = me.getXpos();
         int oldY = me.getYpos();
 
@@ -178,10 +177,14 @@ public class GUI extends Application {
                 e.printStackTrace();
             }
         }
+
+		 */
     }
 
 
-    public void playerMoved(int delta_x, int delta_y, String direction) {
+    public void playerMoved(int delta_x, int delta_y, String direction) throws IOException {
+        klient.sendMessage(direction);
+        /*
         me.direction = direction;
         int x = me.getXpos(),y = me.getYpos();
 
@@ -219,6 +222,8 @@ public class GUI extends Application {
             }
         }
         scoreList.setText(getScoreList());
+
+         */
     }
 
     public String getScoreList() {
