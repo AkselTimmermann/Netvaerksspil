@@ -131,9 +131,6 @@ public class GUI extends Application {
             String playerName = dialog.showAndWait().orElse(null);
 
             klient = new Klient("10.10.139.177",6789,playerName, this);
-            for (Player p : players) {
-                fields[p.getXpos()][p.getYpos()].setGraphic(new ImageView(p.getDirection()));
-            }
 
             scoreList.setText(getScoreList());
 
@@ -251,5 +248,9 @@ public class GUI extends Application {
         String direction = playerArray[3];
         Player newPlayer = new Player(name, x, y, direction);
         players.add(newPlayer);
+
+        fields[x][y].setGraphic(new ImageView(direction));
+
+        scoreList.setText(getScoreList());
     }
 }
