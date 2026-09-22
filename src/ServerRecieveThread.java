@@ -17,6 +17,12 @@ public class ServerRecieveThread extends Thread{
             Player player=new Player(playerName,clientHandlers.size(),clientHandlers.size(),"right");
             clientHandler=new ClientHandler(connSocket,player);
             clientHandlers.add(clientHandler);
+
+            String playerInfo = player.name + ":" + player.getXpos() + ":" + player.getYpos() + ":" + player.getDirection();
+            for (ClientHandler cl1: clientHandlers) {
+                cl1.sendMessage(playerInfo);
+            }
+
             String recieveSentence;
             while((recieveSentence=recieveReader.readLine())!=null){
                 System.out.println("Modtaget fra "+playerName+": "+recieveSentence);

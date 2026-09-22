@@ -113,15 +113,6 @@ public class GUI extends Application {
             Scene scene = new Scene(grid,scene_width,scene_height);
             primaryStage.setScene(scene);
 
-            TextInputDialog dialog = new TextInputDialog("Orville");
-            dialog.setTitle("Spiller");
-            dialog.setHeaderText("Indtast navn på spiller:");
-
-            String playerName = dialog.showAndWait().orElse("Orville").trim();
-
-            if (playerName.isEmpty()) {
-                playerName = "Orville";
-            }
 
             scene.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
                 switch (event.getCode()) {
@@ -134,6 +125,19 @@ public class GUI extends Application {
             });
 
             // Setting up standard players
+            TextInputDialog dialog = new TextInputDialog();
+            dialog.setTitle("Spiller");
+            dialog.setHeaderText("Indtast navn på spiller:");
+            String playerName = dialog.showAndWait().orElse(null);
+
+            klient = new Klient("Localhost",6789,me.name, this);
+            for (Player p : players) {
+                fields[p.getXpos()][p.getYpos()].setGraphic(new ImageView(p.getDirection()));
+            }
+
+            if (playerName.isEmpty()) {
+                playerName = "Orville";
+            }
 
             me = new Player(playerName,9,4,"up");
             players.add(me);
@@ -145,7 +149,6 @@ public class GUI extends Application {
 
             scoreList.setText(getScoreList());
 
-            klient = new Klient("Localhost",6789,me.name);
 
             primaryStage.setOnCloseRequest(event -> {
                 try {
@@ -244,5 +247,15 @@ public class GUI extends Application {
             }
         }
         return null;
+    }
+
+    public void addPlayer(String player) {
+        String[] playerArray = player.split(":");
+        String name = playerArray[0];
+        int x = Integer.parseInt(playerArray[1]);
+        int y = Integer.parseInt(playerArray[2]);
+        String direction = playerArray[3];
+        Player newPlayer = new Player(name, x, y, direction);
+        players.add(newPlayer);
     }
 }
