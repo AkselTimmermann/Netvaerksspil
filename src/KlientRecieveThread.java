@@ -14,11 +14,11 @@ public class KlientRecieveThread extends Thread{
             String player = recieveReader.readLine();
 
             Platform.runLater(() -> gui.addPlayer(player));
+                String recieveSentence;
+                while((recieveSentence=recieveReader.readLine())!=null){
+                    System.out.println("Fra server: "+recieveSentence);
 
-            String recieveSentence;
-            while((recieveSentence=recieveReader.readLine())!=null){
-                System.out.println("Fra server: "+recieveSentence);
-            }
+                }
         }catch(Exception e){
             System.out.println("Forbindelsen til serveren blev lukket");
         }
