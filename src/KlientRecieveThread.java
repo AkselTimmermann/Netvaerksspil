@@ -1,23 +1,18 @@
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.Socket;
+import java.io.*;
+import java.net.*;
 
-public class KlientRecieveThread extends Thread {
+public class KlientRecieveThread extends Thread{
     Socket connSocket;
-
-    public KlientRecieveThread(Socket connSocket) {
-        this.connSocket = connSocket;
-    }
-
-    public void run() {
-        try {
-            BufferedReader recieveReader = new BufferedReader(new InputStreamReader(connSocket.getInputStream()));
-            while (true) {
-                String recieveSentence = recieveReader.readLine();
-                System.out.println("Fra server: " + recieveSentence);
+    public KlientRecieveThread(Socket connSocket){this.connSocket=connSocket;}
+    public void run(){
+        try{
+            BufferedReader recieveReader=new BufferedReader(new InputStreamReader(connSocket.getInputStream()));
+            String recieveSentence;
+            while((recieveSentence=recieveReader.readLine())!=null){
+                System.out.println("Fra server: "+recieveSentence);
             }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        }catch(Exception e){
+            System.out.println("Forbindelsen til serveren blev lukket");
         }
     }
 }
