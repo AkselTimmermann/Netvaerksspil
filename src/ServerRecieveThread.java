@@ -12,7 +12,9 @@ public class ServerRecieveThread extends Thread{
         try{
             BufferedReader recieveReader=new BufferedReader(new InputStreamReader(connSocket.getInputStream()));
             playerName=recieveReader.readLine();
+
             if(playerName==null){return;}
+
             System.out.println("Modtaget navn: "+playerName);
             Player player=new Player(playerName,clientHandlers.size(),clientHandlers.size(),"right");
             clientHandler=new ClientHandler(connSocket,player);
