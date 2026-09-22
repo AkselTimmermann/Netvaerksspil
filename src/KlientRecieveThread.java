@@ -1,32 +1,18 @@
-import javafx.application.Platform;
+import java.io.*;
+import java.net.*;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.Socket;
-
-public class KlientRecieveThread extends Thread {
+public class KlientRecieveThread extends Thread{
     Socket connSocket;
-    GUI gui;
-
-    public KlientRecieveThread(Socket connSocket, GUI gui) {
-        this.connSocket = connSocket;
-        this.gui = gui;
-    }
-
-    public void run() {
-        try {
-            BufferedReader recieveReader = new BufferedReader(new InputStreamReader(connSocket.getInputStream()));
-            String player = recieveReader.readLine();
-
-            Platform.runLater(() -> gui.addPlayer(player));
-
-            while (true) {
-                String recieveSentence = recieveReader.readLine();
-                System.out.println("Fra server: " + recieveSentence);
-
+    public KlientRecieveThread(Socket connSocket){this.connSocket=connSocket;}
+    public void run(){
+        try{
+            BufferedReader recieveReader=new BufferedReader(new InputStreamReader(connSocket.getInputStream()));
+            String recieveSentence;
+            while((recieveSentence=recieveReader.readLine())!=null){
+                System.out.println("Fra server: "+recieveSentence);
             }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        }catch(Exception e){
+            System.out.println("Forbindelsen til serveren blev lukket");
         }
     }
 }

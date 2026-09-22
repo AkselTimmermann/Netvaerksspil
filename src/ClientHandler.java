@@ -1,26 +1,27 @@
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.net.Socket;
+import java.io.*;
+import java.net.*;
 
-public class ClientHandler {
+public class ClientHandler{
     Socket connSocket;
     Player player;
+    DataOutputStream sendStream;
 
-    public ClientHandler(Socket connSocket, Player player) {
-        this.connSocket = connSocket;
-        this.player = player;
+    public ClientHandler(Socket connSocket,Player player)throws IOException{
+        this.connSocket=connSocket;
+        this.player=player;
+        this.sendStream=new DataOutputStream(connSocket.getOutputStream());
     }
 
-    public void sendMessage(String message) throws IOException {
-        DataOutputStream sendStream = new DataOutputStream(connSocket.getOutputStream());
-        sendStream.writeBytes(message + '\n');
+    public synchronized void sendMessage(String message)throws IOException{
+        sendStream.writeBytes(message+'\n');
+        sendStream.flush();
     }
 
-    public Socket getConnSocket() {
+    public Socket getConnSocket(){
         return connSocket;
     }
 
-    public Player getPlayer() {
+    public Player getPlayer(){
         return player;
     }
 }
