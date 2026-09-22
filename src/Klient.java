@@ -5,23 +5,27 @@ import java.io.InputStreamReader;
 import java.net.Socket;
 
 public class Klient {
-    static String playerName;
+    private String playerName;
+    private GUI gui;
+    private Socket clientSocket = new Socket("10.10.131.228", 6789);
 
-    public static void main(String[] args) throws IOException {
-        Socket clientSocket = new Socket("10.10.131.228", 6789);
 
-        System.out.println("Indtast navn på spiller: ");
+    public Klient(String playerName, GUI gui) throws IOException {
+        this.playerName = playerName;
+        this.gui = gui;
+    }
+
+    public void connect() throws IOException {
+
         DataOutputStream sendStream = new DataOutputStream(clientSocket.getOutputStream());
-        BufferedReader inFromUser = new BufferedReader(new InputStreamReader(System.in));
-        playerName = inFromUser.readLine();
         sendStream.writeBytes(playerName + '\n');
 
-
-
-        SendThread sendThread = new SendThread(clientSocket);
-        KlientRecieveThread klientRecieveThread = new KlientRecieveThread(clientSocket);
-
-        sendThread.start();
+        KlientRecieveThread klientRecieveThread = new KlientRecieveThread(clientSocket, gui);
         klientRecieveThread.start();
+    }
+
+    public void sendMessage(String message) throws IOException {
+        DataOutputStream sendMessage = new DataOutputStream(clientSocket.getOutputStream());
+        sendMessage.writeBytes(message + '\n');
     }
 }

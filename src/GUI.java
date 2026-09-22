@@ -1,5 +1,6 @@
 
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,7 +24,7 @@ public class GUI extends Application {
 	public static Image image_wall;
 	public static Image hero_right,hero_left,hero_up,hero_down;
 
-	public static Player me;
+	public Klient klient;
 	public static List<Player> players = new ArrayList<Player>();
 
 	private Label[][] fields;
@@ -124,14 +125,16 @@ public class GUI extends Application {
 			});
 			
             // Setting up standard players
-			
-			me = new Player("Orville",9,4,"up");
-			players.add(me);
-			fields[9][4].setGraphic(new ImageView(hero_up));
+			TextInputDialog dialog = new TextInputDialog();
+			dialog.setTitle("Spiller");
+			dialog.setHeaderText("Indtast dit spillernavn");
+			String playerName = dialog.showAndWait().orElse(null);
+			klient = new Klient(playerName, this);
+			klient.connect();
 
-			Player harry = new Player("Harry",14,15,"up");
-			players.add(harry);
-			fields[14][15].setGraphic(new ImageView(hero_up));
+			for (Player p : players) {
+				fields[p.getXpos()][p.getYpos()].setGraphic(new ImageView(p.getDirection()));
+			}
 
 			scoreList.setText(getScoreList());
 		} catch(Exception e) {
@@ -139,8 +142,9 @@ public class GUI extends Application {
 		}
 	}
 
-	public void playerMoved(int delta_x, int delta_y, String direction) {
-		me.direction = direction;
+	public void playerMoved(int delta_x, int delta_y, String direction) throws IOException {
+		klient.sendMessage(direction);
+
 		int x = me.getXpos(),y = me.getYpos();
 
 		if (board[y+delta_y].charAt(x+delta_x)=='w') {
@@ -194,5 +198,17 @@ public class GUI extends Application {
 		}
 		return null;
 	}
+
+	public void addPlayer(String player) {
+
+		String[] playerArray = player.split(":");
+		String name = playerArray[0];
+		int x = Integer.parseInt(playerArray[1]);
+		int y = Integer.parseInt(playerArray[2]);
+		String direction = playerArray[3];
+		Player newPlayer = new Player(name, x, y, direction);
+		players.add(newPlayer);
+		}
 }
+
 
