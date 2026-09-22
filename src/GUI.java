@@ -249,7 +249,18 @@ public class GUI extends Application {
         Player newPlayer = new Player(name, x, y, direction);
         players.add(newPlayer);
 
-        fields[x][y].setGraphic(new ImageView(direction));
+        if (direction.equals("right")) {
+            fields[x][y].setGraphic(new ImageView(hero_right));
+        };
+        if (direction.equals("left")) {
+            fields[x][y].setGraphic(new ImageView(hero_left));
+        };
+        if (direction.equals("up")) {
+            fields[x][y].setGraphic(new ImageView(hero_up));
+        };
+        if (direction.equals("down")) {
+            fields[x][y].setGraphic(new ImageView(hero_down));
+        };
 
         scoreList.setText(getScoreList());
     }
