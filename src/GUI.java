@@ -130,7 +130,7 @@ public class GUI extends Application {
             dialog.setHeaderText("Indtast navn på spiller:");
             String playerName = dialog.showAndWait().orElse(null);
 
-            klient = new Klient("10.10.139.177",6789,playerName, this);
+            klient = new Klient("LocalHost",6789,playerName, this);
 
             scoreList.setText(getScoreList());
 
@@ -155,7 +155,7 @@ public class GUI extends Application {
 
     public void moveAndSend(int delta_x, int delta_y, String direction) {
         try {
-        klient.sendMessage(direction);
+        klient.sendMessage("MOVE:"+direction);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -181,6 +181,36 @@ public class GUI extends Application {
         }
 
 		 */
+    }
+
+    public void updatePlayer(String playerInfo) {
+        String[] playerArray = playerInfo.split(":");
+        String playerName = playerArray[0];
+        int x = Integer.parseInt(playerArray[1]);
+        int y = Integer.parseInt(playerArray[2]);
+        String direction = playerArray[3];
+
+        for (Player p : players) {
+            if (playerName.equals(p.name)) {
+                int oldx = p.getXpos();
+                int oldy = p.getYpos();
+                fields[oldx][oldy].setGraphic(new ImageView(image_floor));
+                p.setXpos(x);
+                p.setYpos(y);
+                p.setDirection(direction);
+                if (direction.equals("right")) {
+                    fields[x][y].setGraphic(new ImageView(hero_right));
+                } else if (direction.equals("left")) {
+                    fields[x][y].setGraphic(new ImageView(hero_left));
+                } else if (direction.equals("up")) {
+                    fields[x][y].setGraphic(new ImageView(hero_up));
+                } else if (direction.equals("down")) {
+                    fields[x][y].setGraphic(new ImageView(hero_down));
+                }
+
+                break;
+            }
+        }
     }
 
 

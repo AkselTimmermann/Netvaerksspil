@@ -12,16 +12,18 @@ public class KlientRecieveThread extends Thread{
         try{
             BufferedReader recieveReader=new BufferedReader(new InputStreamReader(connSocket.getInputStream()));
 
+            String message;
 
-                String recieveSentence;
-                while((recieveSentence = recieveReader.readLine())!=null){
-                    if (recieveSentence.startsWith("Modtaget")) {
-                        String finalRecieveSentence = recieveSentence;
-                        Platform.runLater(() -> gui.addPlayer(finalRecieveSentence));
-                    } else {
-                        System.out.println("Fra server: "+recieveSentence);
-                    }
+            while ((message = recieveReader.readLine()) != null) {
+                if (message.startsWith("PLAYER:")) {
+                    String playerInfo = message.substring(7);
+                     Platform.runLater(() -> gui.addPlayer(playerInfo));
                 }
+                if (message.startsWith("MOVE:")) {
+                    String playerInfo = message.substring(5);
+                    Platform.runLater(() ->gui.updatePlayer(playerInfo));
+                }
+            }
         }catch(Exception e){
             System.out.println("Forbindelsen til serveren blev lukket");
         }
