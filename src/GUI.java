@@ -130,22 +130,11 @@ public class GUI extends Application {
             dialog.setHeaderText("Indtast navn på spiller:");
             String playerName = dialog.showAndWait().orElse(null);
 
-            klient = new Klient("Localhost",6789,me.name, this);
+            klient = new Klient("10.10.139.177",6789,me.name, this);
             for (Player p : players) {
                 fields[p.getXpos()][p.getYpos()].setGraphic(new ImageView(p.getDirection()));
             }
-
-            if (playerName.isEmpty()) {
-                playerName = "Orville";
-            }
-
             me = new Player(playerName,9,4,"up");
-            players.add(me);
-            fields[9][4].setGraphic(new ImageView(hero_up));
-
-            Player harry = new Player("Harry",14,15,"up");
-            players.add(harry);
-            fields[14][15].setGraphic(new ImageView(hero_up));
 
             scoreList.setText(getScoreList());
 
