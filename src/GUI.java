@@ -154,6 +154,11 @@ public class GUI extends Application {
 
 
     public void moveAndSend(int delta_x, int delta_y, String direction) {
+        try {
+        klient.sendMessage(direction);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 		/*
         int oldX = me.getXpos();
         int oldY = me.getYpos();
@@ -180,7 +185,6 @@ public class GUI extends Application {
 
 
     public void playerMoved(int delta_x, int delta_y, String direction) throws IOException {
-        klient.sendMessage(direction);
         /*
         me.direction = direction;
         int x = me.getXpos(),y = me.getYpos();
