@@ -18,7 +18,7 @@ public class Klient{
     }
 
     public void sendMessage(String message)throws IOException{
-        sendStream.writeBytes(message+'\n');
+        sendStream.writeBytes(message + '\n');
         sendStream.flush();
     }
 

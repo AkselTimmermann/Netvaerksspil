@@ -19,6 +19,10 @@ public class KlientRecieveThread extends Thread{
                     String playerInfo = message.substring(7);
                      Platform.runLater(() -> gui.addPlayer(playerInfo));
                 }
+                if (message.startsWith("POINT")) {
+                    String point = message.substring(6);
+                    Platform.runLater(() -> gui.updatePoint(point));
+                }
                 if (message.startsWith("MOVE:")) {
                     String playerInfo = message.substring(5);
                     Platform.runLater(() ->gui.updatePlayer(playerInfo));

@@ -2,22 +2,29 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 
-public class ServerRecieveThread extends Thread{
+public class ServerRecieveThread extends Thread {
     Socket connSocket;
     String playerName;
     private List<ClientHandler> clientHandlers;
-    public ServerRecieveThread(Socket connSocket,List<ClientHandler> clientHandlers){this.connSocket=connSocket;this.clientHandlers=clientHandlers;}
-    public void run(){
-        ClientHandler clientHandler=null;
-        try{
-            BufferedReader recieveReader=new BufferedReader(new InputStreamReader(connSocket.getInputStream()));
-            playerName=recieveReader.readLine();
 
-            if(playerName==null){return;}
+    public ServerRecieveThread(Socket connSocket, List<ClientHandler> clientHandlers) {
+        this.connSocket = connSocket;
+        this.clientHandlers = clientHandlers;
+    }
 
-            System.out.println("Modtaget navn: "+playerName);
-            Player player=new Player(playerName,clientHandlers.size(),clientHandlers.size(),"right");
-            clientHandler=new ClientHandler(connSocket,player);
+    public void run() {
+        ClientHandler clientHandler = null;
+        try {
+            BufferedReader recieveReader = new BufferedReader(new InputStreamReader(connSocket.getInputStream()));
+            playerName = recieveReader.readLine();
+
+            if (playerName == null) {
+                return;
+            }
+
+            System.out.println("Modtaget navn: " + playerName);
+            Player player = new Player(playerName, clientHandlers.size() + 1, clientHandlers.size() + 1, "right");
+            clientHandler = new ClientHandler(connSocket, player);
             for (ClientHandler clientHandler1 : clientHandlers) {
                 Player p = clientHandler1.getPlayer();
                 String info = "PLAYER:" + p.name + ":" + p.getXpos() + ":" + p.getYpos() + ":" + p.getDirection();
@@ -26,30 +33,43 @@ public class ServerRecieveThread extends Thread{
             clientHandlers.add(clientHandler);
 
 
-
             String playerInfo = "PLAYER:" + player.name + ":" + player.getXpos() + ":" + player.getYpos() + ":" + player.getDirection();
-            for (ClientHandler cl1: clientHandlers) {
+            for (ClientHandler cl1 : clientHandlers) {
                 cl1.sendMessage(playerInfo);
             }
 
             String recieveSentence;
-            while((recieveSentence=recieveReader.readLine())!=null) {
-                String direction = recieveSentence.substring(5);
-                switch (direction) {
-                    case "up":
-                        player.setYpos(player.getYpos() - 1);
-                        break;
-                    case "down":
-                        player.setYpos(player.getYpos() + 1);
-                        break;
-                    case "left":
-                        player.setXpos(player.getXpos() - 1);
-                        break;
-                    case "right":
-                        player.setXpos(player.getXpos() + 1);
-                        break;
+            while ((recieveSentence = recieveReader.readLine()) != null) {
+                if (recieveSentence.startsWith("POINT:")) {
+
+                    String[] pointArray = recieveSentence.split(":");
+                    String name = pointArray[1];
+                    String points = pointArray[2];
+                    for (ClientHandler cl2 : clientHandlers) {
+                        cl2.sendMessage("POINT:" + name + ":" + points);
+                    }
                 }
-                player.setDirection(direction);
+
+                if (recieveSentence.startsWith("MOVE:")) {
+                    String direction = recieveSentence.substring(5);
+                    int x = player.getXpos();
+                    int y = player.getYpos();
+                    switch (direction) {
+                        case "up":
+                            player.setYpos(player.getYpos() - 1);
+                            break;
+                        case "down":
+                            player.setYpos(player.getYpos() + 1);
+                            break;
+                        case "left":
+                            player.setXpos(player.getXpos() - 1);
+                            break;
+                        case "right":
+                            player.setXpos(player.getXpos() + 1);
+                            break;
+                    }
+                    player.setDirection(direction);
+                }
 
                 String moveInfo = "MOVE:" + player.name + ":" + player.getXpos() + ":" + player.getYpos() + ":" + player.getDirection();
                 synchronized (clientHandlers) {
@@ -63,14 +83,18 @@ public class ServerRecieveThread extends Thread{
                 }
             }
 
-        }catch(Exception e){
-            System.out.println("Forbindelsen til "+playerName+" blev afbrudt");
-        }finally{
-            if(clientHandler!=null){clientHandlers.remove(clientHandler);}
-            try{
+        } catch (Exception e) {
+            System.out.println("Forbindelsen til " + playerName + " blev afbrudt");
+        } finally {
+            if (clientHandler != null) {
+                clientHandlers.remove(clientHandler);
+            }
+            try {
                 connSocket.close();
-            }catch(Exception e){e.printStackTrace();}
-            System.out.println(playerName+" forlod serveren");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            System.out.println(playerName + " forlod serveren");
         }
     }
 }

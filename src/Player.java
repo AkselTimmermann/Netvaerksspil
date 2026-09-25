@@ -16,6 +16,9 @@ public class Player {
 		this.point = 0;
 	}
 
+	public void setPoint(int point) {
+		this.point = point;
+	}
 
 	public int getXpos() {
 		return xpos;
