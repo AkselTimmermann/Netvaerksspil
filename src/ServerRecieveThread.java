@@ -6,6 +6,10 @@ public class ServerRecieveThread extends Thread {
     Socket connSocket;
     String playerName;
     private List<ClientHandler> clientHandlers;
+    private int[][] pladser = {{1, 1},
+            {1, 18},
+            {18, 1},
+            {18, 18}};
 
     public ServerRecieveThread(Socket connSocket, List<ClientHandler> clientHandlers) {
         this.connSocket = connSocket;
@@ -17,27 +21,51 @@ public class ServerRecieveThread extends Thread {
         try {
             BufferedReader recieveReader = new BufferedReader(new InputStreamReader(connSocket.getInputStream()));
             playerName = recieveReader.readLine();
-
             if (playerName == null) {
                 return;
             }
 
-            System.out.println("Modtaget navn: " + playerName);
-            Player player = new Player(playerName, clientHandlers.size() + 1, clientHandlers.size() + 1, "right");
-            clientHandler = new ClientHandler(connSocket, player);
-            for (ClientHandler clientHandler1 : clientHandlers) {
-                Player p = clientHandler1.getPlayer();
-                String info = "PLAYER:" + p.name + ":" + p.getXpos() + ":" + p.getYpos() + ":" + p.getDirection();
-                clientHandler.sendMessage(info);
+            Player player = null;
+            synchronized (clientHandlers) {
+                for (int i = 0; i < pladser.length; i++) {
+                    int x = pladser[i][0];
+                    int y = pladser[i][1];
+
+                    boolean optaget = false;
+
+                    for (ClientHandler cl : clientHandlers) {
+                        Player p = cl.getPlayer();
+
+                        if (p.getXpos() == x && p.getYpos() == y) {
+                            optaget = true;
+                            break;
+                        }
+                    }
+                    if (!optaget) {
+                        System.out.println("Modtaget navn: " + playerName);
+                        player = new Player(playerName, x, y, "right");
+                        clientHandler = new ClientHandler(connSocket, player);
+                        break;
+                    }
+                }
+                if (player == null) {
+                    return;
+                }
+
+
+                for (ClientHandler clientHandler1 : clientHandlers) {
+                    Player p = clientHandler1.getPlayer();
+                    String info = "PLAYER:" + p.name + ":" + p.getXpos() + ":" + p.getYpos() + ":" + p.getDirection();
+                    clientHandler.sendMessage(info);
+                }
+                clientHandlers.add(clientHandler);
+
+
+                String playerInfo = "PLAYER:" + player.name + ":" + player.getXpos() + ":" + player.getYpos() + ":" + player.getDirection();
+                for (ClientHandler cl1 : clientHandlers) {
+                    cl1.sendMessage(playerInfo);
+                }
             }
-            clientHandlers.add(clientHandler);
-
-
-            String playerInfo = "PLAYER:" + player.name + ":" + player.getXpos() + ":" + player.getYpos() + ":" + player.getDirection();
-            for (ClientHandler cl1 : clientHandlers) {
-                cl1.sendMessage(playerInfo);
-            }
-
             String recieveSentence;
             while ((recieveSentence = recieveReader.readLine()) != null) {
                 if (recieveSentence.startsWith("POINT:")) {
@@ -45,8 +73,10 @@ public class ServerRecieveThread extends Thread {
                     String[] pointArray = recieveSentence.split(":");
                     String name = pointArray[1];
                     String points = pointArray[2];
-                    for (ClientHandler cl2 : clientHandlers) {
-                        cl2.sendMessage("POINT:" + name + ":" + points);
+                    synchronized (clientHandlers) {
+                        for (ClientHandler cl2 : clientHandlers) {
+                            cl2.sendMessage("POINT:" + name + ":" + points);
+                        }
                     }
                 }
 
@@ -69,18 +99,18 @@ public class ServerRecieveThread extends Thread {
                             break;
                     }
                     player.setDirection(direction);
-                }
-
-                String moveInfo = "MOVE:" + player.name + ":" + player.getXpos() + ":" + player.getYpos() + ":" + player.getDirection();
-                synchronized (clientHandlers) {
-                    for (ClientHandler cl : clientHandlers) {
-                        try {
-                            cl.sendMessage(moveInfo);
-                        } catch (Exception e) {
-                            System.out.println("Kunne ikke sende besked til " + cl.getPlayer().name);
+                    String moveInfo = "MOVE:" + player.name + ":" + player.getXpos() + ":" + player.getYpos() + ":" + player.getDirection();
+                    synchronized (clientHandlers) {
+                        for (ClientHandler cl : clientHandlers) {
+                            try {
+                                cl.sendMessage(moveInfo);
+                            } catch (Exception e) {
+                                System.out.println("Kunne ikke sende besked til " + cl.getPlayer().name);
+                            }
                         }
                     }
                 }
+
             }
 
         } catch (Exception e) {
