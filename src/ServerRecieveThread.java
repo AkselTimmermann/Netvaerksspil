@@ -71,11 +71,21 @@ public class ServerRecieveThread extends Thread {
             String recieveSentence;
             while ((recieveSentence = recieveReader.readLine()) != null) {
 
-                if (recieveSentence.startsWith("MOVE:")) {
-                    String direction = recieveSentence.substring(5);
+                /* if (recieveSentence.startsWith("POINT:")) {
 
-                    List<ClientHandler> modtagere;
-                    String moveInfo = null;
+                    String[] pointArray = recieveSentence.split(":");
+                    String name = pointArray[1];
+                    String points = pointArray[2];
+                    synchronized (clientHandlers) {
+                        for (ClientHandler cl2 : clientHandlers) {
+                            cl2.sendMessage("POINT:" + name + ":" + points);
+                        }
+                    }
+                } */
+
+                if (recieveSentence.startsWith("MOVE:")) {
+
+                    String direction = recieveSentence.substring(5);
 
                     synchronized (clientHandlers) {
 
@@ -99,43 +109,79 @@ public class ServerRecieveThread extends Thread {
                                 continue;
                         }
 
-                        boolean pladsOptaget = false;
 
+                        // Væg = -1
+                        if (GameBoard.isWall(x, y)) {
 
+                            player.addPoints(-1);
+
+                            String pointInfo = "POINT:" + player.name + ":" + player.point;
+
+                            for (ClientHandler cl : clientHandlers) {
+                                try {
+                                    cl.sendMessage(pointInfo);
+                                } catch (IOException e) {
+                                    System.out.println("Kunne ikke sende besked til " + cl.getPlayer().name);
+                                }
+                            }
+                            continue;
+                        }
+
+                        // Finder evt. spiller vi er ved at støde ind i
+                        Player andenPlayer = null;
                         for (ClientHandler cl : clientHandlers) {
-                            Player andenPlayer = cl.getPlayer();
 
-                            if (andenPlayer != player
-                                    && andenPlayer.getXpos() == x
-                                    && andenPlayer.getYpos() == y) {
+                            Player p = cl.getPlayer();
 
-                                pladsOptaget = true;
+                            if (p != player && p.getXpos() == x && p.getYpos() == y) {
+
+                                andenPlayer = p;
                                 break;
                             }
                         }
 
-                        if (!pladsOptaget) {
-                            player.setXpos(x);
-                            player.setYpos(y);
-                            player.setDirection(direction);
+                        // Anden spiller = -10/+10
+                        if (andenPlayer != null) {
+                            player.addPoints(10);
+                            andenPlayer.addPoints(-10);
 
-                            moveInfo = "MOVE:" + player.name + ":" + player.getXpos() + ":" + player.getYpos() + ":" + player.getDirection();
+                            String angribendeSpiller = "POINT:" + player.name + ":" + player.point;
 
+                            String ramtSpiller = "POINT:" + andenPlayer.name + ":" + andenPlayer.point;
 
+                            for (ClientHandler cl : clientHandlers) {
+                                try {
+                                    cl.sendMessage(angribendeSpiller);
+                                    cl.sendMessage(ramtSpiller);
+                                } catch (IOException e) {
+                                    System.out.println("Kunne ikke sende til " + cl.getPlayer().name);
+                                }
+                            }
+                            continue;
                         }
-                        modtagere = new ArrayList<>(clientHandlers);
 
-                    }
+                        // Feltet er frit = +1 og opdater position
+                        player.setXpos(x);
+                        player.setYpos(y);
+                        player.setDirection(direction);
 
-                    if (moveInfo != null) {
-                        for (ClientHandler cl : modtagere) {
+                        player.addPoints(1);
+
+                        String pointInfo = "POINT:" + player.name + ":" + player.point;
+
+                        String moveInfo = "MOVE:" + player.name + ":" + player.getXpos() + ":" + player.getYpos() + ":" + player.getDirection();
+
+                        for (ClientHandler cl : clientHandlers) {
                             try {
+                                cl.sendMessage(pointInfo);
                                 cl.sendMessage(moveInfo);
                             } catch (IOException e) {
-                                System.out.println("Kunne ikke sende besked til " + cl.getPlayer().name);
+                                System.out.println("Kunne ikke sende til " + cl.getPlayer().name);
                             }
                         }
+
                     }
+
                 }
 
             }

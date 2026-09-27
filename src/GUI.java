@@ -31,28 +31,7 @@ public class GUI extends Application {
     private String playerName;
 
     private Klient klient;
-    private String[] board = {    // 20x20
-            "wwwwwwwwwwwwwwwwwwww",
-            "w        ww        w",
-            "w w  w  www w  w  ww",
-            "w w  w   ww w  w  ww",
-            "w  w               w",
-            "w w w w w w w  w  ww",
-            "w w     www w  w  ww",
-            "w w     w w w  w  ww",
-            "w   w w  w  w  w   w",
-            "w     w  w  w  w   w",
-            "w ww ww        w  ww",
-            "w  w w    w    w  ww",
-            "w        ww w  w  ww",
-            "w         w w  w  ww",
-            "w        w     w  ww",
-            "w  w              ww",
-            "w  w www  w w  ww ww",
-            "w w      ww w     ww",
-            "w   w   ww  w      w",
-            "wwwwwwwwwwwwwwwwwwww"
-    };
+    private String[] board = GameBoard.BOARD;
 
 
     // -------------------------------------------
@@ -143,7 +122,6 @@ public class GUI extends Application {
 
             klient = new Klient("10.0.0.8", 6789, playerName, this);
 
-            // Aksel 10.10.131.197
             scoreList.setText(getScoreList());
 
 
@@ -167,43 +145,11 @@ public class GUI extends Application {
 
     public void moveAndSend(int delta_x, int delta_y, String direction) {
         try {
-            for (Player p : players) {
-                if (p.name.equals(playerName)) {
-                    int newX = p.getXpos();
-                    int newY = p.getYpos();
-                    switch (direction) {
-                        case "up":
-                            newY--;
-                            break;
-                        case "down":
-                            newY++;
-                            break;
-                        case "left":
-                            newX--;
-                            break;
-                        case "right":
-                            newX++;
-                            break;
-                    }
-                    if (board[newY].charAt(newX) == 'w') {
-                        p.addPoints(-1);
-                        klient.sendMessage("POINT:" + playerName + ":" + p.point);
-                    } else if (getPlayerAt(newX,newY) != null) {
-                        Player p2 = getPlayerAt(newX,newY);
-                        p2.addPoints(-10);
-                        p.addPoints(10);
-                        klient.sendMessage("POINT:" + p2.name + ":" + p2.point);
-                        klient.sendMessage("POINT:" + playerName + ":" + p.point);
-                    } else {
-                        p.addPoints(1);
-                        klient.sendMessage("POINT:" + playerName + ":" + p.point);
-                        klient.sendMessage("MOVE:" + direction);
-                    }
-                }
-            }
+            klient.sendMessage("MOVE:" + direction);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+
 		/*
         int oldX = me.getXpos();
         int oldY = me.getYpos();
