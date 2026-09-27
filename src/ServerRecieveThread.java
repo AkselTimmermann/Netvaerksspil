@@ -66,45 +66,72 @@ public class ServerRecieveThread extends Thread {
                     cl1.sendMessage(playerInfo);
                 }
             }
+
+
             String recieveSentence;
             while ((recieveSentence = recieveReader.readLine()) != null) {
-                if (recieveSentence.startsWith("POINT:")) {
-
-                    String[] pointArray = recieveSentence.split(":");
-                    String name = pointArray[1];
-                    String points = pointArray[2];
-                    synchronized (clientHandlers) {
-                        for (ClientHandler cl2 : clientHandlers) {
-                            cl2.sendMessage("POINT:" + name + ":" + points);
-                        }
-                    }
-                }
 
                 if (recieveSentence.startsWith("MOVE:")) {
                     String direction = recieveSentence.substring(5);
-                    int x = player.getXpos();
-                    int y = player.getYpos();
-                    switch (direction) {
-                        case "up":
-                            player.setYpos(player.getYpos() - 1);
-                            break;
-                        case "down":
-                            player.setYpos(player.getYpos() + 1);
-                            break;
-                        case "left":
-                            player.setXpos(player.getXpos() - 1);
-                            break;
-                        case "right":
-                            player.setXpos(player.getXpos() + 1);
-                            break;
-                    }
-                    player.setDirection(direction);
-                    String moveInfo = "MOVE:" + player.name + ":" + player.getXpos() + ":" + player.getYpos() + ":" + player.getDirection();
+
+                    List<ClientHandler> modtagere;
+                    String moveInfo = null;
+
                     synchronized (clientHandlers) {
+
+                        int x = player.getXpos();
+                        int y = player.getYpos();
+
+                        switch (direction) {
+                            case "up":
+                                y--;
+                                break;
+                            case "down":
+                                y++;
+                                break;
+                            case "left":
+                                x--;
+                                break;
+                            case "right":
+                                x++;
+                                break;
+                            default:
+                                continue;
+                        }
+
+                        boolean pladsOptaget = false;
+
+
                         for (ClientHandler cl : clientHandlers) {
+                            Player andenPlayer = cl.getPlayer();
+
+                            if (andenPlayer != player
+                                    && andenPlayer.getXpos() == x
+                                    && andenPlayer.getYpos() == y) {
+
+                                pladsOptaget = true;
+                                break;
+                            }
+                        }
+
+                        if (!pladsOptaget) {
+                            player.setXpos(x);
+                            player.setYpos(y);
+                            player.setDirection(direction);
+
+                            moveInfo = "MOVE:" + player.name + ":" + player.getXpos() + ":" + player.getYpos() + ":" + player.getDirection();
+
+
+                        }
+                        modtagere = new ArrayList<>(clientHandlers);
+
+                    }
+
+                    if (moveInfo != null) {
+                        for (ClientHandler cl : modtagere) {
                             try {
                                 cl.sendMessage(moveInfo);
-                            } catch (Exception e) {
+                            } catch (IOException e) {
                                 System.out.println("Kunne ikke sende besked til " + cl.getPlayer().name);
                             }
                         }
