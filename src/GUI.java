@@ -141,7 +141,7 @@ public class GUI extends Application {
             dialog.setHeaderText("Indtast navn på spiller:");
             playerName = dialog.showAndWait().orElse(null);
 
-            klient = new Klient("localhost", 6789, playerName, this);
+            klient = new Klient("10.0.0.8", 6789, playerName, this);
 
             // Aksel 10.10.131.197
             scoreList.setText(getScoreList());
